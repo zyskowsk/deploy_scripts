@@ -3,7 +3,7 @@ require 'sshkit/dsl'
 
 SERVER = '192.241.228.42'
 
-def deploy_project project
+def deploy_project project, branch='master'
     SSHKit::Backend::Netssh.configure do |ssh|
         ssh.ssh_options = {
             user: project,
@@ -15,14 +15,19 @@ def deploy_project project
     on SERVER do
         within "~/#{project}" do
             as 'root' do 
+                execute :git, :checkout, "#{branch}"
                 execute :git, :reset, '--hard'
-                execute :git, :pull
+                execute :git, :pull, :origin, "#{branch}"
+                execute :cp, "etc/nginx/#{project} /etc/nginx/sites-available/#{project}"
                 execute :service, :nginx, :restart
+                execute "rm -rf /home/#{project}/#{project}/public/"
             end
+            execute :bundle, :install
+            execute :rake, 'assetpack:build'
             execute :thin, :restart
         end
     end
 end
 
-project = ARGV.first
-deploy_project project
+project, branch = ARGV
+deploy_project project, branch
