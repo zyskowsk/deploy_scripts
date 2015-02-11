@@ -15,12 +15,12 @@ def deploy_project project, branch='master'
     on SERVER do
         within "~/#{project}" do
             as 'root' do 
+                execute "rm -rf /home/#{project}/#{project}/public/"
                 execute :git, :checkout, "#{branch}"
                 execute :git, :reset, '--hard'
                 execute :git, :pull, :origin, "#{branch}"
                 execute :cp, "etc/nginx/#{project} /etc/nginx/sites-available/#{project}"
                 execute :service, :nginx, :restart
-                execute "rm -rf /home/#{project}/#{project}/public/"
             end
             execute :bundle, :install
             execute :rake, 'assetpack:build'
