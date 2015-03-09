@@ -4,6 +4,7 @@ require 'sshkit/dsl'
 SERVER = '192.241.228.42'
 
 def deploy_project project, branch='master'
+    SSHKit.config.default_env = {TEST_ENV: 'prod'}
     SSHKit::Backend::Netssh.configure do |ssh|
         ssh.ssh_options = {
             user: project,
