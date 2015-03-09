@@ -20,6 +20,7 @@ def deploy_project project, branch='master'
                 execute :git, :reset, '--hard'
                 execute :git, :pull, :origin, "#{branch}"
                 execute :cp, "etc/nginx/#{project} /etc/nginx/sites-available/#{project}"
+                execute :cp, "etc/cron.d/backup /etc/cron.d/backup"
                 execute :service, :nginx, :restart
             end
             execute :bundle, :install
